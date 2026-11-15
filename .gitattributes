@@ -1,0 +1,4 @@
+# The published Maven repository has checksums: its files must be stored byte for byte.
+docs/** -text
+gradlew text eol=lf
+*.jar binary

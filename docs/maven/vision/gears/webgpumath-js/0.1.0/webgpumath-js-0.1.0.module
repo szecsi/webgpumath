@@ -1,0 +1,130 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../webgpumath/0.1.0/webgpumath-0.1.0.module",
+    "group": "vision.gears",
+    "module": "webgpumath",
+    "version": "0.1.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.3.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "jsApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "webgpumath-js-0.1.0.klib",
+          "url": "webgpumath-js-0.1.0.klib",
+          "size": 201600,
+          "sha512": "4fbc569d0274e36142d07e7d50f1afe6d9605c5ab20293a504a1a2fa5061442620122e0bfbe2b8e0f4357869f6aa9a4152cb269211f01be6f9f0f94cb277a3f7",
+          "sha256": "e6dfb1debf81124174145275ae9984cf1dc99963303252d60a26b295e2aee484",
+          "sha1": "db76be79a90b9c540188458eb4552929b9462b75",
+          "md5": "a137fa2df32fee0f9d21405343267ab8"
+        }
+      ]
+    },
+    {
+      "name": "jsRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlinx",
+          "module": "kotlinx-serialization-json",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "webgpumath-js-0.1.0.klib",
+          "url": "webgpumath-js-0.1.0.klib",
+          "size": 201600,
+          "sha512": "4fbc569d0274e36142d07e7d50f1afe6d9605c5ab20293a504a1a2fa5061442620122e0bfbe2b8e0f4357869f6aa9a4152cb269211f01be6f9f0f94cb277a3f7",
+          "sha256": "e6dfb1debf81124174145275ae9984cf1dc99963303252d60a26b295e2aee484",
+          "sha1": "db76be79a90b9c540188458eb4552929b9462b75",
+          "md5": "a137fa2df32fee0f9d21405343267ab8"
+        }
+      ]
+    },
+    {
+      "name": "jsSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "files": [
+        {
+          "name": "webgpumath-js-0.1.0-sources.jar",
+          "url": "webgpumath-js-0.1.0-sources.jar",
+          "size": 40704,
+          "sha512": "6c86133b7b84e0a02e9da20a4cec4d635a39002ce2efc0fb6bc7e04963087f168b72f3feb55aa8d3debe979cc597cc43b3abda77723e187076a23c4a535b44df",
+          "sha256": "5d50420c1964fb22e7e9df1068d281a412a29132d2d1ff5dcdf409731e636e76",
+          "sha1": "1abd6e6ee13dd2b29090f937de6aa4be7bf641fd",
+          "md5": "521e6d85aa65d084616ced080612f37f"
+        }
+      ]
+    }
+  ]
+}
