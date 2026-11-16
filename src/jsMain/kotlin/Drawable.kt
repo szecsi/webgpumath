@@ -1,12 +1,13 @@
 package vision.gears.webgpumath
 
-abstract class Drawable {
-  /** Unique among drawables. A RenderQueue sorts by the ids of programs, materials and geometries. */
-  val id = nextResourceId()
-
-  open fun gatherUniforms(target : UniformProvider){}
-  abstract fun draw(pass : Pass, vararg uniformProviders : UniformProvider)
-  open fun drawWithOverrides(pass : Pass, overrides : Map<String, UniformProvider>, vararg uniformProviders : UniformProvider){
-    draw(pass, *uniformProviders)
-  }
+/**
+ * Something that can be drawn with one draw call: typically a mesh, which is a
+ * geometry and what it is drawn with.
+ *
+ * In the vertex shader, `@builtin(instance_index)` takes the values
+ * `firstInstance` until `firstInstance + instanceCount - 1`. Resources come from
+ * the uniform providers, each for the WGSL variables it claims.
+ */
+interface Drawable {
+  fun draw(pass : Pass, firstInstance : Int, instanceCount : Int, vararg uniformProviders : UniformProvider)
 }

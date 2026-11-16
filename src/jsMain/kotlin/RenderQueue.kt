@@ -69,7 +69,8 @@ class RenderQueue(val name : String = "instanceEntities") : UniformProvider(name
 
   /**
    * `instance` is the slot of the object's data in its InstanceGroup. `program`, `material`
-   * and `geometry` are ids (see Drawable.id) of what `drawable` consists of.
+   * and `geometry` are numbers that tell apart what `drawable` consists of: the `id` of a
+   * program and of a geometry, and for a material one from `nextResourceId()`.
    */
   fun add(
       drawable : Drawable,
@@ -116,7 +117,7 @@ class RenderQueue(val name : String = "instanceEntities") : UniformProvider(name
   }
 
   /** Sorts the items, then draws every run of the same drawable in one instanced draw call. */
-  override fun draw(pass : Pass, vararg uniformProviders : UniformProvider) {
+  fun draw(pass : Pass, vararg uniformProviders : UniformProvider) {
     if(isChanged) {
       if(drawnFrame == pass.frame) {
         // the buffer is written when the frame is submitted: the earlier pass would get the new contents, too
@@ -134,13 +135,9 @@ class RenderQueue(val name : String = "instanceEntities") : UniformProvider(name
       val item = items[first]
       var end = first + 1
       while(end < items.size && items[end].drawable === item.drawable && items[end].phase == item.phase) end++
-      pass.firstInstance = first
-      pass.instanceCount = end - first
-      item.drawable.draw(pass, this, *uniformProviders)
+      item.drawable.draw(pass, first, end - first, this, *uniformProviders)
       batchCount++
       first = end
     }
-    pass.firstInstance = 0
-    pass.instanceCount = 1
   }
 }

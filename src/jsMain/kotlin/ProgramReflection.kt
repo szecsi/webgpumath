@@ -10,9 +10,11 @@ import kotlin.js.json
  *   the Prelude is, in every shader) need no provider.
  * - gatherUniforms creates, in a UniformProvider, the uniform objects for the
  *   variables that provider claims.
- * - draw finds the provider of every variable among the uniform providers passed
- *   along the draw chain, uploads their data and sets the bind groups. The Geometry
- *   that follows in the chain makes the draw call, with a pipeline from `pipeline`.
+ * - pipeline gives the render pipeline for drawing a geometry with this program.
+ * - bind finds the provider of every variable among the given uniform providers,
+ *   uploads their data and sets the bind groups.
+ *
+ * Drawing a geometry with a program is: set the pipeline, bind, then `geometry.draw`.
  *
  * Conventions in WGSL:
  * - `var<uniform> material : Material` belongs to the provider that claims "material".
@@ -21,13 +23,16 @@ import kotlin.js.json
  * - `var material_colorTextureSampler : sampler` receives the sampler of the texture
  *   bound to `material_colorTexture`.
  */
-class ProgramReflection(
+open class ProgramReflection(
   val device : GPUDevice,
   val vertexModule : GPUShaderModule,
   val vertex : ShaderReflection,
   val fragmentModule : GPUShaderModule,
   val fragment : ShaderReflection,
-  val debugName : String = "${vertex.debugName}+${fragment.debugName}" ) : Drawable() {
+  val debugName : String = "${vertex.debugName}+${fragment.debugName}" ) {
+
+  /** Unique among programs. A RenderQueue can sort by it. */
+  val id = nextResourceId()
 
   val vertexEntryPoint = vertex.vertexEntryPoint ?: throw Error("Shader ${vertex.debugName} has no @vertex function.")
   val fragmentEntryPoint = fragment.fragmentEntryPoint ?: throw Error("Shader ${fragment.debugName} has no @fragment function.")
@@ -103,7 +108,8 @@ class ProgramReflection(
     else -> "float"
   }
 
-  override fun gatherUniforms(target : UniformProvider) {
+  /** Creates, in `target`, the uniforms of the variables of this program that `target` claims. */
+  fun gatherUniforms(target : UniformProvider) {
     for(name in target.variableNames) {
       val binding = bindings[name]
       if(binding != null && binding.kind == BindingKind.UNIFORM && !binding.isArray) {
@@ -147,35 +153,34 @@ class ProgramReflection(
     return texture ?: TextureTools.placeholder(pass.device, textureViewDimension(binding.typeName))
   }
 
-  /** Uploads and binds the resources of all used variables, and leaves this program in the pass for the geometry. */
-  override fun draw(pass : Pass, vararg uniformProviders : UniformProvider) {
-    pass.program = this
+  /** Uploads and binds the resources of all used variables. */
+  fun bind(pass : Pass, vararg uniformProviders : UniformProvider) {
     for(g in groups.indices) {
       val entries = ArrayList<dynamic>()
       val key = StringBuilder(groupSignatures[g])
       for(binding in groups[g]) {
         val resource : dynamic
-        val id : Int
+        val resourceId : Int
         when(binding.kind) {
           BindingKind.UNIFORM, BindingKind.STORAGE -> {
             val provider = uniformProviders.firstOrNull { binding.name in it.variableNames }
               ?: throw Error("No uniform provider for WGSL variable '${binding.name}' when drawing with $debugName. Providers passed: ${uniformProviders.joinToString { it::class.simpleName + it.variableNames.joinToString(",", "[", "]") }}")
             val buffer = provider.bufferFor(binding.name, pass)
             resource = json("buffer" to buffer.buffer)
-            id = buffer.resourceId
+            resourceId = buffer.resourceId
           }
           BindingKind.TEXTURE -> {
             val texture = textureFor(binding, pass, uniformProviders)
             resource = texture.view
-            id = texture.resourceId
+            resourceId = texture.resourceId
           }
           BindingKind.SAMPLER -> {
             val texture = textureFor(textureOfSampler[binding.name]!!, pass, uniformProviders)
             resource = texture.sampler
-            id = texture.resourceId
+            resourceId = texture.resourceId
           }
         }
-        key.append('|').append(id)
+        key.append('|').append(resourceId)
         entries += json("binding" to binding.binding, "resource" to resource)
       }
       val bindGroup = bindGroupCache.getOrPut(key.toString()) {
@@ -185,9 +190,11 @@ class ProgramReflection(
     }
   }
 
-  /** The render pipeline for drawing `geometry` with this program into the targets of `pass`, with its render state. */
-  fun pipeline(pass : Pass, geometry : Geometry) : GPURenderPipeline {
-    val state = pass.renderState
+  /**
+   * The render pipeline for drawing `geometry` with this program into the targets of `pass`.
+   * `state` is the depth test, culling and blending. Pipelines are created once, then reused.
+   */
+  fun pipeline(pass : Pass, geometry : Geometry, state : RenderState = RenderState.default) : GPURenderPipeline {
     val key = "${geometry.layoutKey}|${pass.targetKey}|${state.key}"
     return pipelines.getOrPut(key) {
       val buffers = vertexInputs.map { input ->

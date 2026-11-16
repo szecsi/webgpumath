@@ -17,8 +17,8 @@ import kotlin.js.json
  * The whole group is uploaded once per frame.
  *
  * In the vertex shader, index a storage array with `@builtin(instance_index)`:
- * drawing an element sets it to the element's slot, and `drawInstanced` draws
- * every slot in one call.
+ * an element's `drawInstance` sets it to the element's slot, and `drawInstanced`
+ * draws every slot in one call.
  */
 open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvider(name) {
   private val binding = Prelude.binding(name)
@@ -106,18 +106,14 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
   /** Draws `drawable` once for every slot of the group, in a single instanced draw call. */
   fun drawInstanced(pass : Pass, drawable : Drawable, vararg uniformProviders : UniformProvider) {
     if(extent == 0) return
-    pass.firstInstance = 0
-    pass.instanceCount = extent
-    drawable.draw(pass, this, *uniformProviders)
-    pass.firstInstance = 0
-    pass.instanceCount = 1
+    drawable.draw(pass, 0, extent, this, *uniformProviders)
   }
 }
 
 /**
  * An element of an InstanceGroup. Its properties declared with `by Mat4()`,
  * `by Vec3()` etc. are views into the element's slot in the group's memory.
- * Drawing it draws its components with `instance_index` set to its slot.
+ * `drawInstance` draws something with `instance_index` set to its slot.
  *
  * The group hands out a free slot, unless `claimedSlot` is given. Claim slots when
  * several groups must be indexed by the same number, e.g. an entity id: a draw
@@ -145,25 +141,8 @@ open class InstanceElement(val group : InstanceGroup, claimedSlot : Int? = null)
 
   override fun bufferFor(name : String, pass : Pass) : BufferResource = group.bufferFor(name, pass)
 
-  override fun draw(pass : Pass, vararg uniformProviders : UniformProvider) {
-    pass.firstInstance = slot
-    pass.instanceCount = 1
-    super.draw(pass, *uniformProviders)
-    pass.firstInstance = 0
-  }
-
-  override fun drawWithOverrides(pass : Pass, overrides : Map<String, UniformProvider>, vararg uniformProviders : UniformProvider) {
-    pass.firstInstance = slot
-    pass.instanceCount = 1
-    super.drawWithOverrides(pass, overrides, *uniformProviders)
-    pass.firstInstance = 0
-  }
-
-  /** Draws `drawable`, which need not be a component of this element, with `instance_index` set to this element's slot. */
+  /** Draws `drawable` with `instance_index` set to this element's slot, and this element among the uniform providers. */
   fun drawInstance(pass : Pass, drawable : Drawable, vararg uniformProviders : UniformProvider) {
-    pass.firstInstance = slot
-    pass.instanceCount = 1
-    drawable.draw(pass, this, *uniformProviders)
-    pass.firstInstance = 0
+    drawable.draw(pass, slot, 1, this, *uniformProviders)
   }
 }

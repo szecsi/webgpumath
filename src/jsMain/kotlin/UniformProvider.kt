@@ -47,9 +47,11 @@ class UniformBlock(val layout : StructLayout) {
  * If the variable is declared in the Prelude, the properties declared with
  * `by Vec3()`, `by Mat4()` etc. are views into the provider's uniform buffer from
  * the start, and a property that the WGSL struct does not have is an error.
- * Otherwise the layout comes from the shader program at gatherUniforms.
+ * Otherwise the layout comes from a shader program: `program.gatherUniforms(provider)`.
+ *
+ * A provider only holds data. It is used by passing it along when something is drawn.
  */
-open class UniformProvider(vararg val variableNames : String) : Drawable() {
+open class UniformProvider(vararg val variableNames : String) {
   internal val uniforms = HashMap<String, Uniform>()
   internal val blocks = HashMap<String, UniformBlock>()
 
@@ -122,59 +124,10 @@ open class UniformProvider(vararg val variableNames : String) : Drawable() {
 
   /** The buffer holding the data of WGSL variable `name`, uploaded if this is its first use in the frame. */
   open fun bufferFor(name : String, pass : Pass) : BufferResource {
-    val block = blocks[name] ?: throw Error("${this::class.simpleName} claims WGSL variable '$name', but has no data for it. Declare '$name' in the shader prelude, or gather its uniforms from the program that uses it (addComponentsAndGatherUniforms).")
+    val block = blocks[name] ?: throw Error("${this::class.simpleName} claims WGSL variable '$name', but has no data for it. Declare '$name' in the shader prelude, or gather its uniforms from the program that uses it (program.gatherUniforms).")
     return block.buffer(pass)
   }
 
   /** The texture bound to this provider's texture uniform `name`, or null. */
   fun textureFor(name : String) : Texture? = (uniforms[name] as? UniformSampler)?.texture
-
-  val components = ArrayList<Drawable>()
-
-  fun addComponentsAndGatherUniforms(vararg children : Drawable){
-    components.addAll(children)
-    gatherUniforms(this)
-  }
-
-  override fun gatherUniforms(target : UniformProvider){
-    components.forEach {
-      it.gatherUniforms(target)
-    }
-  }
-
-  override fun draw(pass : Pass, vararg uniformProviders : UniformProvider){
-    components.forEach {
-      it.draw(pass, this, *uniformProviders)
-    }
-  }
-
-  /**
-   * Recursively calls drawWithOverrides on subcomponents, but if there is
-   * an object of matching type in overrides, drawWithOverrides is called
-   * on it instead of the subcomponent.
-   */
-  override fun drawWithOverrides(pass : Pass, overrides : Map<String, UniformProvider>, vararg uniformProviders : UniformProvider){
-    components.forEach{
-      (overrides[it::class.simpleName]?:it).drawWithOverrides(
-        pass,
-        overrides,
-        this,
-        *uniformProviders
-        )
-    }
-  }
-
-  fun using(vararg overriders : UniformProvider) : Drawable {
-    val overrideMap = overriders.map{(it::class.simpleName?:"<no class name>") to it}.toMap()
-    return object : Drawable() {
-      override fun draw(pass : Pass, vararg uniformProviders : UniformProvider){
-        this@UniformProvider.drawWithOverrides(pass, overrideMap, *uniformProviders)
-      }
-      override fun drawWithOverrides(pass : Pass, overrides : Map<String, UniformProvider>, vararg uniformProviders : UniformProvider){
-        val allOverrides : MutableMap<String, UniformProvider> = overrideMap.toMutableMap()
-        overrides.forEach{ (key : String, value : UniformProvider) -> allOverrides[key] = value }
-        this@UniformProvider.drawWithOverrides(pass, allOverrides, *uniformProviders)
-      }
-    }
-  }
 }
