@@ -225,7 +225,10 @@ open class ProgramReflection(
           "targets" to targets),
         "primitive" to json(
           "topology" to geometry.topology,
-          "cullMode" to state.cullMode))
+          "cullMode" to state.cullMode),
+        "multisample" to json(
+          "count" to pass.sampleCount,
+          "alphaToCoverageEnabled" to (state.alphaToCoverage && pass.sampleCount > 1)))
       if(pass.depthFormat != null) {
         descriptor["depthStencil"] = json(
           "format" to pass.depthFormat,

@@ -46,6 +46,8 @@ external interface GPUQueue {
 
 external interface GPUBuffer {
   val size : Double
+  /** `mode` is a GPUMapMode. The buffer can be read or written when the promise is fulfilled, until `unmap`. */
+  fun mapAsync(mode : Int, offset : Int = definedExternally, size : Int = definedExternally) : Promise<Unit>
   fun getMappedRange(offset : Int = definedExternally, size : Int = definedExternally) : ArrayBuffer
   fun unmap()
   fun destroy()
@@ -98,6 +100,7 @@ external interface GPURenderPipeline {
 
 external interface GPUCommandEncoder {
   fun beginRenderPass(descriptor : dynamic) : GPURenderPassEncoder
+  fun copyTextureToBuffer(source : dynamic, destination : dynamic, copySize : dynamic)
   fun finish() : GPUCommandBuffer
 }
 
@@ -107,6 +110,8 @@ external interface GPURenderPassEncoder {
   fun setVertexBuffer(slot : Int, buffer : GPUBuffer)
   fun setIndexBuffer(buffer : GPUBuffer, indexFormat : String)
   fun setViewport(x : Float, y : Float, width : Float, height : Float, minDepth : Float, maxDepth : Float)
+  /** Only pixels in the rectangle are drawn to. */
+  fun setScissorRect(x : Int, y : Int, width : Int, height : Int)
   fun draw(vertexCount : Int, instanceCount : Int = definedExternally, firstVertex : Int = definedExternally, firstInstance : Int = definedExternally)
   fun drawIndexed(indexCount : Int, instanceCount : Int = definedExternally, firstIndex : Int = definedExternally, baseVertex : Int = definedExternally, firstInstance : Int = definedExternally)
   fun end()
@@ -126,6 +131,11 @@ external object GPUBufferUsage {
   val VERTEX : Int
   val UNIFORM : Int
   val STORAGE : Int
+}
+
+external object GPUMapMode {
+  val READ : Int
+  val WRITE : Int
 }
 
 external object GPUTextureUsage {

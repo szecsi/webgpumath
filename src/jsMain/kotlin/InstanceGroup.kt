@@ -68,17 +68,31 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
     return extent++
   }
 
-  /** Takes a slot chosen by the caller, e.g. the id of the entity the element belongs to. */
-  internal fun claim(slot : Int) : Int {
+  /** Who holds each claimed slot. */
+  private val claimants = HashMap<Int, InstanceElement>()
+
+  /**
+   * Takes a slot chosen by the caller, e.g. the id of the entity the element belongs to.
+   * If another element holds the slot, the new one takes it over, with its memory cleared.
+   */
+  internal fun claim(slot : Int, element : InstanceElement) : Int {
     checkSlotPolicy(true)
     if(slot < 0 || slot >= capacity) {
       throw Error("InstanceGroup '$name': slot $slot is out of range, capacity is $capacity.")
     }
     if(slot >= extent) extent = slot + 1
+    if(claimants.put(slot, element) != null) {
+      Uint8Array(data, slot * stride, stride).asDynamic().fill(0)
+    }
     return slot
   }
 
-  internal fun release(slot : Int) {
+  internal fun release(slot : Int, element : InstanceElement) {
+    if(hasClaimedSlots == true) {
+      // an element whose slot was taken over has nothing to give back
+      if(claimants[slot] !== element) return
+      claimants.remove(slot)
+    }
     Uint8Array(data, slot * stride, stride).asDynamic().fill(0)
     // a claimed slot is its claimant's to take again
     if(hasClaimedSlots == false) freeSlots += slot
@@ -120,7 +134,7 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
  * call has only one `instance_index`.
  */
 open class InstanceElement(val group : InstanceGroup, claimedSlot : Int? = null) : UniformProvider(group.name) {
-  val slot = if(claimedSlot != null) group.claim(claimedSlot) else group.allocate()
+  val slot = if(claimedSlot != null) group.claim(claimedSlot, this) else group.allocate()
   override val hasFixedLayout : Boolean get() = true
   var isReleased = false
     private set
@@ -135,7 +149,7 @@ open class InstanceElement(val group : InstanceGroup, claimedSlot : Int? = null)
   fun release() {
     if(!isReleased) {
       isReleased = true
-      group.release(slot)
+      group.release(slot, this)
     }
   }
 
