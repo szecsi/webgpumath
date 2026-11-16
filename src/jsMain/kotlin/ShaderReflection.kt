@@ -109,9 +109,11 @@ class ShaderReflection(val source : String, val debugName : String = "") {
       val isArray = type.isArray.unsafeCast<Boolean>()
       val elementType = if(isArray) type.format else type
       val isBuffer = kind == BindingKind.UNIFORM || kind == BindingKind.STORAGE
-      if(isBuffer && !elementType.isStruct.unsafeCast<Boolean>()) {
+      val isStruct = isBuffer && elementType.isStruct.unsafeCast<Boolean>()
+      // An array of numbers has no members to make uniforms of: its provider fills the buffer itself, as RenderQueue does.
+      if(isBuffer && !isStruct && !isArray) {
         throw Error("WGSL variable '$name' in $debugName has type ${typeNameOf(type)}. " +
-          "webgpumath needs uniform and storage variables to be structs or arrays of structs.")
+          "webgpumath needs uniform and storage variables to be structs or arrays.")
       }
       bindings[name] = BindingInfo(
         name = name,
@@ -119,7 +121,7 @@ class ShaderReflection(val source : String, val debugName : String = "") {
         binding = v.binding.unsafeCast<Int>(),
         kind = kind,
         typeName = typeNameOf(type),
-        struct = if(isBuffer) structLayoutOf(elementType) else null,
+        struct = if(isStruct) structLayoutOf(elementType) else null,
         isArray = isArray,
         arrayCount = if(isArray) type.count.unsafeCast<Int>() else 0,
         arrayStride = if(isArray) type.stride.unsafeCast<Int>() else 0,

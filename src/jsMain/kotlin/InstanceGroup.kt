@@ -49,7 +49,18 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
   var extent = 0
     private set
 
+  /** Whether elements name their own slots (true) or the group hands them out (false). Set by the first element. */
+  private var hasClaimedSlots : Boolean? = null
+
+  private fun checkSlotPolicy(claiming : Boolean) {
+    if(hasClaimedSlots == null) hasClaimedSlots = claiming
+    if(hasClaimedSlots != claiming) {
+      throw Error("InstanceGroup '$name': either all elements choose their own slot, or none does.")
+    }
+  }
+
   internal fun allocate() : Int {
+    checkSlotPolicy(false)
     if(freeSlots.isNotEmpty()) return freeSlots.removeAt(freeSlots.size - 1)
     if(extent >= capacity) {
       throw Error("InstanceGroup '$name' is full: capacity is $capacity.")
@@ -57,9 +68,20 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
     return extent++
   }
 
+  /** Takes a slot chosen by the caller, e.g. the id of the entity the element belongs to. */
+  internal fun claim(slot : Int) : Int {
+    checkSlotPolicy(true)
+    if(slot < 0 || slot >= capacity) {
+      throw Error("InstanceGroup '$name': slot $slot is out of range, capacity is $capacity.")
+    }
+    if(slot >= extent) extent = slot + 1
+    return slot
+  }
+
   internal fun release(slot : Int) {
     Uint8Array(data, slot * stride, stride).asDynamic().fill(0)
-    freeSlots += slot
+    // a claimed slot is its claimant's to take again
+    if(hasClaimedSlots == false) freeSlots += slot
   }
 
   private var resource : BufferResource? = null
@@ -96,9 +118,13 @@ open class InstanceGroup(val name : String, capacity : Int = 0) : UniformProvide
  * An element of an InstanceGroup. Its properties declared with `by Mat4()`,
  * `by Vec3()` etc. are views into the element's slot in the group's memory.
  * Drawing it draws its components with `instance_index` set to its slot.
+ *
+ * The group hands out a free slot, unless `claimedSlot` is given. Claim slots when
+ * several groups must be indexed by the same number, e.g. an entity id: a draw
+ * call has only one `instance_index`.
  */
-open class InstanceElement(val group : InstanceGroup) : UniformProvider(group.name) {
-  val slot = group.allocate()
+open class InstanceElement(val group : InstanceGroup, claimedSlot : Int? = null) : UniformProvider(group.name) {
+  val slot = if(claimedSlot != null) group.claim(claimedSlot) else group.allocate()
   override val hasFixedLayout : Boolean get() = true
   var isReleased = false
     private set
@@ -130,6 +156,14 @@ open class InstanceElement(val group : InstanceGroup) : UniformProvider(group.na
     pass.firstInstance = slot
     pass.instanceCount = 1
     super.drawWithOverrides(pass, overrides, *uniformProviders)
+    pass.firstInstance = 0
+  }
+
+  /** Draws `drawable`, which need not be a component of this element, with `instance_index` set to this element's slot. */
+  fun drawInstance(pass : Pass, drawable : Drawable, vararg uniformProviders : UniformProvider) {
+    pass.firstInstance = slot
+    pass.instanceCount = 1
+    drawable.draw(pass, this, *uniformProviders)
     pass.firstInstance = 0
   }
 }
