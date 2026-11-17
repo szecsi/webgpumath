@@ -3,18 +3,24 @@ package vision.gears.webgpumath
 import kotlin.js.json
 
 /**
- * What a pair of vertex and fragment shaders needs from the outside, and how to supply it.
+ * A vertex and a fragment shader, what they need from the outside, and the render
+ * pipelines made from them. A pipeline also depends on the geometry (vertex layout,
+ * topology), the pass (target formats, sample count) and the render state; the
+ * template has one pipeline for every combination that is drawn.
  *
  * - On construction, it builds the bind group layouts from the resource variables
  *   the shaders actually use. Variables that are only declared (as everything in
  *   the Prelude is, in every shader) need no provider.
  * - gatherUniforms creates, in a UniformProvider, the uniform objects for the
  *   variables that provider claims.
- * - pipeline gives the render pipeline for drawing a geometry with this program.
+ * - pipeline gives the render pipeline for drawing a geometry with these shaders.
  * - bind finds the provider of every variable among the given uniform providers,
  *   uploads their data and sets the bind groups.
  *
- * Drawing a geometry with a program is: set the pipeline, bind, then `geometry.draw`.
+ * Drawing a geometry is: set the pipeline, bind, then `geometry.draw`.
+ *
+ * `PipelineTemplate.of` gives the same template for the same two shader modules,
+ * so that everything drawn with the same shaders shares layouts and pipelines.
  *
  * Conventions in WGSL:
  * - `var<uniform> material : Material` belongs to the provider that claims "material".
@@ -23,7 +29,7 @@ import kotlin.js.json
  * - `var material_colorTextureSampler : sampler` receives the sampler of the texture
  *   bound to `material_colorTexture`.
  */
-open class ProgramReflection(
+class PipelineTemplate(
   val device : GPUDevice,
   val vertexModule : GPUShaderModule,
   val vertex : ShaderReflection,
@@ -31,7 +37,7 @@ open class ProgramReflection(
   val fragment : ShaderReflection,
   val debugName : String = "${vertex.debugName}+${fragment.debugName}" ) {
 
-  /** Unique among programs. A RenderQueue can sort by it. */
+  /** Unique among templates. A RenderQueue can sort by it. */
   val id = nextResourceId()
 
   val vertexEntryPoint = vertex.vertexEntryPoint ?: throw Error("Shader ${vertex.debugName} has no @vertex function.")
@@ -108,7 +114,7 @@ open class ProgramReflection(
     else -> "float"
   }
 
-  /** Creates, in `target`, the uniforms of the variables of this program that `target` claims. */
+  /** Creates, in `target`, the uniforms of the variables of these shaders that `target` claims. */
   fun gatherUniforms(target : UniformProvider) {
     for(name in target.variableNames) {
       val binding = bindings[name]
@@ -191,7 +197,7 @@ open class ProgramReflection(
   }
 
   /**
-   * The render pipeline for drawing `geometry` with this program into the targets of `pass`.
+   * The render pipeline for drawing `geometry` with these shaders into the targets of `pass`.
    * `state` is the depth test, culling and blending. Pipelines are created once, then reused.
    */
   fun pipeline(pass : Pass, geometry : Geometry, state : RenderState = RenderState.default) : GPURenderPipeline {
@@ -248,5 +254,17 @@ open class ProgramReflection(
     // Equal layouts are shared, and so are the bind groups made with them.
     private val layoutCache = HashMap<String, GPUBindGroupLayout>()
     private val bindGroupCache = HashMap<String, GPUBindGroup>()
+    private val templates = HashMap<Pair<GPUShaderModule, GPUShaderModule>, PipelineTemplate>()
+
+    /** The template of the two shader modules: created on the first call, the same one after. */
+    fun of(
+        device : GPUDevice,
+        vertexModule : GPUShaderModule,
+        vertex : ShaderReflection,
+        fragmentModule : GPUShaderModule,
+        fragment : ShaderReflection ) : PipelineTemplate =
+      templates.getOrPut(Pair(vertexModule, fragmentModule)) {
+        PipelineTemplate(device, vertexModule, vertex, fragmentModule, fragment)
+      }
   }
 }

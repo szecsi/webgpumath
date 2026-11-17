@@ -24,8 +24,8 @@ class VertexAttribute(val buffer : GPUBuffer, val format : String) {
  * vertex shader, e.g. `@location(0) vertexPosition : vec4f`. A geometry may have
  * attributes the shader does not use.
  *
- * `draw` makes the draw call. The pipeline (`program.pipeline(pass, geometry, renderState)`)
- * must be set and the program's resources bound (`program.bind`) before.
+ * `draw` makes the draw call. The pipeline (`template.pipeline(pass, geometry, renderState)`)
+ * must be set and the resources of the shaders bound (`template.bind`) before.
  */
 abstract class Geometry {
   /** Unique among geometries. A RenderQueue can sort by it. */
@@ -41,12 +41,12 @@ abstract class Geometry {
   val layoutKey get() = vertexAttributes.entries.sortedBy { it.key }.joinToString(",", postfix = "/$topology") { "${it.key}:${it.value.format}" }
 
   /**
-   * Sets the vertex buffers that the vertex shader of `program` reads, and makes the draw call.
+   * Sets the vertex buffers that the vertex shader of `template` reads, and makes the draw call.
    * `@builtin(instance_index)` goes from `firstInstance` to `firstInstance + instanceCount - 1`.
    */
-  fun draw(pass : Pass, program : ProgramReflection, firstInstance : Int = 0, instanceCount : Int = 1) {
+  fun draw(pass : Pass, template : PipelineTemplate, firstInstance : Int = 0, instanceCount : Int = 1) {
     val encoder = pass.encoder
-    program.vertexInputs.forEachIndexed { slot, input ->
+    template.vertexInputs.forEachIndexed { slot, input ->
       encoder.setVertexBuffer(slot, vertexAttributes[input.name]!!.buffer)
     }
     val indices = indexBuffer

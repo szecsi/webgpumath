@@ -9,7 +9,7 @@ class RenderItem(
   val drawable : Drawable,
   val instance : Int,
   val phase : Int,
-  val program : Int,
+  val template : Int,
   val material : Int,
   val geometry : Int,
   val depth : Float )
@@ -30,7 +30,7 @@ class RenderItem(
  * Sorting has several levels:
  * 1. phase: BACKGROUND, OPAQUE, TRANSPARENT, or any other number, in increasing order;
  * 2. in the TRANSPARENT phase, depth, farthest first;
- * 3. program, material, geometry ids, so that equal pipelines and bind groups are neighbours;
+ * 3. pipeline template, material, geometry ids, so that equal pipelines and bind groups are neighbours;
  * 4. depth, nearest first, so that the depth test rejects more of what comes later.
  *
  * Every frame: `clear`, `add` everything, then `draw` once. To draw different
@@ -68,26 +68,26 @@ class RenderQueue(val name : String = "instanceEntities") : UniformProvider(name
   }
 
   /**
-   * `instance` is the slot of the object's data in its InstanceGroup. `program`, `material`
+   * `instance` is the slot of the object's data in its InstanceGroup. `template`, `material`
    * and `geometry` are numbers that tell apart what `drawable` consists of: the `id` of a
-   * program and of a geometry, and for a material one from `nextResourceId()`.
+   * PipelineTemplate and of a geometry, and for a material one from `nextResourceId()`.
    */
   fun add(
       drawable : Drawable,
       instance : Int,
       phase : Int = OPAQUE,
-      program : Int = 0,
+      template : Int = 0,
       material : Int = 0,
       geometry : Int = 0,
       depth : Float = 0.0f ) {
-    items += RenderItem(drawable, instance, phase, program, material, geometry, depth)
+    items += RenderItem(drawable, instance, phase, template, material, geometry, depth)
     isChanged = true
   }
 
   private val drawOrder = Comparator<RenderItem> { a, b ->
     if(a.phase != b.phase) a.phase - b.phase
     else if(a.phase == TRANSPARENT && a.depth != b.depth) (if(a.depth > b.depth) -1 else 1)
-    else if(a.program != b.program) a.program - b.program
+    else if(a.template != b.template) a.template - b.template
     else if(a.material != b.material) a.material - b.material
     else if(a.geometry != b.geometry) a.geometry - b.geometry
     else a.depth.compareTo(b.depth)

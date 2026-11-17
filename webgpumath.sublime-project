@@ -1,0 +1,33 @@
+{
+  "build_systems":
+  [
+    {
+      "name": "Gradle",
+      "shell_cmd": "gradle build --warning-mode all",
+      "working_dir": "${project_path}",
+      "file_regex": "^[ew]: file:///(.:[^:]*):(\\d+):(\\d+) ([^\n]+)",
+      "variants":
+      [
+        {
+          "name": "Publish",
+          "shell_cmd": "gradle publish --warning-mode all"
+        }
+      ]
+    }
+  ],
+  "folders":
+  [
+    { "name": "webgpumath", "path": "src" },
+    { "name": "ecs", "path": "ecs/src" },
+    {
+      "name": "build scripts",
+      "path": ".",
+      "folder_exclude_patterns": ["src", "ecs", "docs", "build", ".gradle", ".kotlin", "kotlin-js-store", "gradle"],
+      "file_include_patterns": ["*.kts", "*.properties", "*.md"]
+    }
+  ],
+  "settings":
+  {
+    "tab_size": 2
+  }
+}

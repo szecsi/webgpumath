@@ -4,11 +4,11 @@ import kotlin.js.Json
 import kotlin.js.json
 
 /**
- * How something is drawn, apart from the shaders: what WebGL set with gl.enable,
- * gl.depthFunc, gl.blendFunc, gl.cullFace. In WebGPU it is part of the pipeline.
+ * How something is drawn, apart from the shaders: depth test, culling, blending,
+ * stencil, multisampling. In WebGPU it is part of the pipeline.
  *
- * A render pipeline descriptor is put together from four sources: the program gives
- * the shaders, the geometry the vertex layout and the topology, the pass the formats
+ * A render pipeline descriptor is put together from four sources: the PipelineTemplate
+ * gives the shaders, the geometry the vertex layout and the topology, the pass the formats
  * and the sample count. The rest is here, in the parts and under the names of
  * GPURenderPipelineDescriptor:
  *
