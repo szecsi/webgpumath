@@ -195,8 +195,14 @@ open class ProgramReflection(
    * `state` is the depth test, culling and blending. Pipelines are created once, then reused.
    */
   fun pipeline(pass : Pass, geometry : Geometry, state : RenderState = RenderState.default) : GPURenderPipeline {
-    val key = "${geometry.layoutKey}|${pass.targetKey}|${state.key}"
+    // an index buffer of strips needs a word in the pipeline, too
+    val stripIndexFormat = if(geometry.indexBuffer != null && geometry.topology.endsWith("-strip")) geometry.indexFormat else null
+    val key = "${geometry.layoutKey}|$stripIndexFormat|${pass.targetKey}|${state.key}"
     return pipelines.getOrPut(key) {
+      state.validate()
+      // Every part of the descriptor is merged: defaults first, then what the render state sets,
+      // then what is not the render state's to decide.
+      val merge : dynamic = js("Object.assign")
       val buffers = vertexInputs.map { input ->
         val attribute = geometry.vertexAttributes[input.name]
           ?: throw Error("Shader ${vertex.debugName} needs vertex attribute '${input.name}', but ${geometry::class.simpleName} only has [${geometry.vertexAttributes.keys.joinToString()}].")
@@ -207,11 +213,14 @@ open class ProgramReflection(
             "offset" to 0,
             "format" to attribute.format)))
       }.toTypedArray()
-      val targets = pass.colorFormats.map { format ->
-        val target = json("format" to format)
-        if(state.blend != null) target["blend"] = state.blend
-        target
+      val targets = pass.colorFormats.mapIndexed { index, format ->
+        merge(json(), state.target, state.targetOrNull(index) ?: json(), json("format" to format))
       }.toTypedArray()
+      val primitive = merge(json("cullMode" to "none"), state.primitive, json("topology" to geometry.topology))
+      if(stripIndexFormat != null) primitive["stripIndexFormat"] = stripIndexFormat
+      val multisample = merge(json(), state.multisample, json("count" to pass.sampleCount))
+      // alpha to coverage needs samples: a material that asks for it still works in a single-sample pass
+      if(pass.sampleCount == 1) multisample["alphaToCoverageEnabled"] = false
       val descriptor = json(
         "label" to debugName,
         "layout" to pipelineLayout,
@@ -223,17 +232,13 @@ open class ProgramReflection(
           "module" to fragmentModule,
           "entryPoint" to fragmentEntryPoint,
           "targets" to targets),
-        "primitive" to json(
-          "topology" to geometry.topology,
-          "cullMode" to state.cullMode),
-        "multisample" to json(
-          "count" to pass.sampleCount,
-          "alphaToCoverageEnabled" to (state.alphaToCoverage && pass.sampleCount > 1)))
+        "primitive" to primitive,
+        "multisample" to multisample)
       if(pass.depthFormat != null) {
-        descriptor["depthStencil"] = json(
-          "format" to pass.depthFormat,
-          "depthWriteEnabled" to state.depthWrite,
-          "depthCompare" to state.depthCompare)
+        descriptor["depthStencil"] = merge(
+          json("depthWriteEnabled" to true, "depthCompare" to "less"),
+          state.depthStencil,
+          json("format" to pass.depthFormat))
       }
       device.createRenderPipeline(descriptor)
     }

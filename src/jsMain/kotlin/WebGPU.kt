@@ -110,6 +110,9 @@ external interface GPURenderPassEncoder {
   fun setVertexBuffer(slot : Int, buffer : GPUBuffer)
   fun setIndexBuffer(buffer : GPUBuffer, indexFormat : String)
   fun setViewport(x : Float, y : Float, width : Float, height : Float, minDepth : Float, maxDepth : Float)
+  fun setStencilReference(reference : Int)
+  /** `color` is a GPUColor: an object with r, g, b, a. */
+  fun setBlendConstant(color : dynamic)
   /** Only pixels in the rectangle are drawn to. */
   fun setScissorRect(x : Int, y : Int, width : Int, height : Int)
   fun draw(vertexCount : Int, instanceCount : Int = definedExternally, firstVertex : Int = definedExternally, firstInstance : Int = definedExternally)
