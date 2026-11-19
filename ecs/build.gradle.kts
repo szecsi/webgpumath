@@ -19,6 +19,13 @@ kotlin {
     nodejs()
   }
   // The sources are in commonMain: they are not specific to JavaScript.
+  sourceSets {
+    val commonTest by getting {
+      dependencies {
+        implementation(kotlin("test"))
+      }
+    }
+  }
 }
 
 // `gradlew publish` writes into the same Maven repository as webgpumath.

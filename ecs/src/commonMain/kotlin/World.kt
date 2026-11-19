@@ -3,7 +3,7 @@ package vision.gears.ecs
 import kotlin.reflect.KClass
 
 /**
- * Data that belongs to an entity. An entity is just an id: what it is and what
+ * Data that belongs to an entity. An entity is just a handle: what it is and what
  * it does follows from the components it has.
  */
 interface Component {
@@ -11,20 +11,37 @@ interface Component {
 
   /**
    * Called when the component is removed from the world, or replaced by another.
-   * Override it to give back what the component holds, such as its place in a buffer on the GPU.
+   * Override it to give back what the component holds.
    */
   fun dispose() {}
+}
+
+/**
+ * A reference to an entity that remembers where it was found last.
+ *
+ * Every storage is sorted by entity handle, and a component's row in it changes
+ * when entities before it are destroyed, or when an older entity gets a component.
+ * `world.get<T>(ref)` tries the remembered row first, and only searches when the
+ * component is not there any more; then it remembers the new row. A Ref has one
+ * remembered row, so it pays off for the component class it is mostly used with.
+ */
+class Ref(val entity : Int) {
+  @PublishedApi internal var hint = 0
 }
 
 /**
  * The entities and their components. Systems are functions that run queries on it:
  *
  *     world.query<Position>().with<Velocity>().without<Frozen>().each { p, v -> ... }
+ *
+ * Entity handles count up from 0 and are never given out again. So every storage,
+ * sorted by handle, is in the order the entities were created: a parent created
+ * before its children comes before them.
  */
 class World {
   @PublishedApi internal val storages = HashMap<KClass<*>, MutableList<out Component>>()
 
-  /** The components of one class, sorted by entity id. */
+  /** The components of one class, sorted by entity handle, without gaps. */
   @Suppress("UNCHECKED_CAST")
   inline fun <reified T : Component> storage() : MutableList<T> =
     storages.getOrPut(T::class) { mutableListOf<T>() } as MutableList<T>
@@ -45,10 +62,24 @@ class World {
     }
   }
 
+  /** `world += component` is `world.set(component)`. */
+  inline operator fun <reified T : Component> plusAssign(c : T) = set(c)
+
   inline fun <reified T : Component> get(entity : Int) : T? {
     val s = storage<T>()
     val i = s.binarySearchBy(entity) { it.entity }
     return if(i >= 0) s[i] else null
+  }
+
+  /** The component of the referenced entity: at the row where it was found last, or searched for. */
+  inline fun <reified T : Component> get(ref : Ref) : T? {
+    val s = storage<T>()
+    val hint = ref.hint
+    if(hint < s.size && s[hint].entity == ref.entity) return s[hint]
+    val i = s.binarySearchBy(ref.entity) { it.entity }
+    if(i < 0) return null
+    ref.hint = i
+    return s[i]
   }
 
   /** Not to be called from inside a query of the same component class: use `defer` there. */
@@ -60,28 +91,48 @@ class World {
 
   inline fun <reified A : Component> query() = Query1(this, storage<A>(), emptyList())
 
-  // Entities. The ids of destroyed entities are used again.
-  private val alive = HashSet<Int>()
-  private val freeEntities = ArrayList<Int>()
+  // The handles of the living entities, in increasing order.
+  private val entities = ArrayList<Int>()
   private var nextEntity = 0
 
-  fun create() : Int {
-    val entity = if(freeEntities.isNotEmpty()) freeEntities.removeAt(freeEntities.size - 1) else nextEntity++
-    alive += entity
+  /**
+   * Entities with a handle below this cannot be destroyed. Since nothing before them
+   * is ever removed, their components never move in the storages.
+   */
+  var frozenRange = 0
+    private set
+
+  /** Makes the entities created so far permanent: see `frozenRange`. */
+  fun freezeEntities() {
+    frozenRange = nextEntity
+  }
+
+  /** Creates an entity, and lets `populator` add its components. Returns its handle. */
+  fun create(populator : ((World, Int) -> Unit)? = null) : Int {
+    val entity = nextEntity++
+    // the newest handle is the largest: the list stays sorted
+    entities += entity
+    populator?.invoke(this, entity)
     return entity
   }
 
-  /** False for an entity that was destroyed. (Its id may be given to a new entity later.) */
-  fun isAlive(entity : Int) : Boolean = entity in alive
+  /** False for an entity that was destroyed, or never created. Handles are not used again. */
+  fun isAlive(entity : Int) : Boolean = entities.binarySearch(entity) >= 0
 
-  /** Removes all components of the entity, at the next `flush`. */
-  fun destroy(entity : Int) = defer {
-    if(alive.remove(entity)) {
-      for(s in storages.values) {
-        val i = s.binarySearchBy(entity) { it.entity }
-        if(i >= 0) s.removeAt(i).dispose()
+  /** Removes the entity and all its components, at the next `flush`. */
+  fun destroy(entity : Int) {
+    if(entity < frozenRange) {
+      throw IllegalArgumentException("Entity $entity is below the frozen range ($frozenRange): it cannot be destroyed.")
+    }
+    defer {
+      val e = entities.binarySearch(entity)
+      if(e >= 0) {
+        entities.removeAt(e)
+        for(s in storages.values) {
+          val i = s.binarySearchBy(entity) { it.entity }
+          if(i >= 0) s.removeAt(i).dispose()
+        }
       }
-      freeEntities += entity
     }
   }
 
