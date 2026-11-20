@@ -1,0 +1,130 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../kog-engine/0.3.0/kog-engine-0.3.0.module",
+    "group": "vision.gears",
+    "module": "kog-engine",
+    "version": "0.3.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.3.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "jsApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "vision.gears",
+          "module": "webgpumath",
+          "version": {
+            "requires": "0.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kog-engine-js-0.3.0.klib",
+          "url": "kog-engine-js-0.3.0.klib",
+          "size": 57822,
+          "sha512": "041aa24e05a477ca721bd7c108b241afb683526fb3196387e31fd66c39ee6181aa98d48813274df931627afc5add026c0f7eb16f504f5e5b2accf4f6d4ad7d21",
+          "sha256": "852a4ad9a40aa69cb9bc6741b7adeea771ff58ccfb831868412a964a2608cecd",
+          "sha1": "36e486f17eedc04be096a46913bbe058ae3b72da",
+          "md5": "359e68176dac008942ef6f7a599bab5a"
+        }
+      ]
+    },
+    {
+      "name": "jsRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "vision.gears",
+          "module": "webgpumath",
+          "version": {
+            "requires": "0.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kog-engine-js-0.3.0.klib",
+          "url": "kog-engine-js-0.3.0.klib",
+          "size": 57822,
+          "sha512": "041aa24e05a477ca721bd7c108b241afb683526fb3196387e31fd66c39ee6181aa98d48813274df931627afc5add026c0f7eb16f504f5e5b2accf4f6d4ad7d21",
+          "sha256": "852a4ad9a40aa69cb9bc6741b7adeea771ff58ccfb831868412a964a2608cecd",
+          "sha1": "36e486f17eedc04be096a46913bbe058ae3b72da",
+          "md5": "359e68176dac008942ef6f7a599bab5a"
+        }
+      ]
+    },
+    {
+      "name": "jsSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "files": [
+        {
+          "name": "kog-engine-js-0.3.0-sources.jar",
+          "url": "kog-engine-js-0.3.0-sources.jar",
+          "size": 15789,
+          "sha512": "19f477b627ec197775ddf48ed26fac70799e313ce4c84af67b744c4d0c18c2393a69112fe43d3650f2fd3fb9dc714c28f76a3658d65fb133f9c2104051e79afd",
+          "sha256": "d22e579c6d0e8e4d17010e807d14ef225652efe54ae6e5e967b49083a9e33286",
+          "sha1": "5e07b48a61a46465788afefee4bc80f37aa46e28",
+          "md5": "6cb9d37270cee9c4706cfd37ff4f3fe6"
+        }
+      ]
+    }
+  ]
+}

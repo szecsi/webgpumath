@@ -1,0 +1,130 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../kimgui/0.3.0/kimgui-0.3.0.module",
+    "group": "vision.gears",
+    "module": "kimgui",
+    "version": "0.3.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.3.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "jsApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "vision.gears",
+          "module": "webgpumath",
+          "version": {
+            "requires": "0.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kimgui-js-0.3.0.klib",
+          "url": "kimgui-js-0.3.0.klib",
+          "size": 152475,
+          "sha512": "ff6ab8860ea438d810f616cce07e1fd0189a73542d809ca901c1f1c13d2a070bf9a0ca087b122b9183c08223a35325cec48dbe44e1f0c0780598865cfa2b7fbd",
+          "sha256": "a2726e38be704b2b0df1c49197e18688c8243a5100c63a1c5eab5a5c3c1eaeac",
+          "sha1": "750730f2b9e1ed516f99f70211b9a419680b3950",
+          "md5": "45c7e31b8918b26b60b9652f1f536d72"
+        }
+      ]
+    },
+    {
+      "name": "jsRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "vision.gears",
+          "module": "webgpumath",
+          "version": {
+            "requires": "0.3.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kimgui-js-0.3.0.klib",
+          "url": "kimgui-js-0.3.0.klib",
+          "size": 152475,
+          "sha512": "ff6ab8860ea438d810f616cce07e1fd0189a73542d809ca901c1f1c13d2a070bf9a0ca087b122b9183c08223a35325cec48dbe44e1f0c0780598865cfa2b7fbd",
+          "sha256": "a2726e38be704b2b0df1c49197e18688c8243a5100c63a1c5eab5a5c3c1eaeac",
+          "sha1": "750730f2b9e1ed516f99f70211b9a419680b3950",
+          "md5": "45c7e31b8918b26b60b9652f1f536d72"
+        }
+      ]
+    },
+    {
+      "name": "jsSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "files": [
+        {
+          "name": "kimgui-js-0.3.0-sources.jar",
+          "url": "kimgui-js-0.3.0-sources.jar",
+          "size": 26411,
+          "sha512": "cfa58c2a75e62f557bf4601807c12fd64b2ac24c31068c8fbc814e681f68b9d44fb4533e8688f71d2f5e41d8fc1ed1e293c48d343f636491ed870b27b6f7738a",
+          "sha256": "a2019eec71a6c11f5175e5cdcf21c835846864589bcba480088bd5a8d57c81f5",
+          "sha1": "5dd7e98f4802f115d9df342578d788ea2aac1e02",
+          "md5": "01edf57b692bcef8d965acc9aabd8224"
+        }
+      ]
+    }
+  ]
+}

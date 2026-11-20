@@ -15,8 +15,8 @@ class VertexAttribute(val buffer : GPUBuffer, val format : String)
  * `count` is the number of indices if there is an index buffer, the number of vertices otherwise.
  *
  * `layout` is what the pipeline needs to know of the geometry. `draw` makes the draw
- * call. The pipeline (`template.pipeline(pass, geometry.layout, renderState)`) must be
- * set and the resources of the shaders bound (`template.bind`) before.
+ * call. The pipeline (`program.pipeline(pass, geometry.layout, renderState)`) must be
+ * set and the resources of the shaders bound (`program.bind`) before.
  */
 open class Geometry(
     vertexAttributes : Map<String, VertexAttribute>,
@@ -36,12 +36,12 @@ open class Geometry(
     if(indexBuffer != null && topology.endsWith("-strip")) indexFormat else null)
 
   /**
-   * Sets the vertex buffers that the vertex shader of `template` reads, and makes the draw call.
+   * Sets the vertex buffers that the vertex shader of `program` reads, and makes the draw call.
    * `@builtin(instance_index)` goes from `firstInstance` to `firstInstance + instanceCount - 1`.
    */
-  fun draw(pass : Pass, template : PipelineTemplate, firstInstance : Int = 0, instanceCount : Int = 1) {
+  fun draw(pass : Pass, program : ShaderProgram, firstInstance : Int = 0, instanceCount : Int = 1) {
     val encoder = pass.encoder
-    template.vertexInputs.forEachIndexed { slot, input ->
+    program.vertexInputs.forEachIndexed { slot, input ->
       encoder.setVertexBuffer(slot, vertexAttributes[input.name]!!.buffer)
     }
     val indices = indexBuffer

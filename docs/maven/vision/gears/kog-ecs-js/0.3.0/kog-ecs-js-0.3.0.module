@@ -1,0 +1,116 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../kog-ecs/0.3.0/kog-ecs-0.3.0.module",
+    "group": "vision.gears",
+    "module": "kog-ecs",
+    "version": "0.3.0",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.3.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "jsApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-api",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kog-ecs-js-0.3.0.klib",
+          "url": "kog-ecs-js-0.3.0.klib",
+          "size": 45890,
+          "sha512": "316be29559c8f36d9d9c53d467ab19e679a8f940ec4f6986a761a40730342a1309e831eaa57984b44e6201b614dda2e189bea5f519b1a703ddd8ec1219823bb1",
+          "sha256": "7ea8435478bceff3ae359f190a4409e9b1f7a7ac736be9a983e263510c6c8012",
+          "sha1": "943941e4171ff4d602f99dcfe953491ba14702f8",
+          "md5": "6026f6134e080a37fb3c65aa4dcd606f"
+        }
+      ]
+    },
+    {
+      "name": "jsRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-dom-api-compat",
+          "version": {
+            "requires": "2.4.20"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "kog-ecs-js-0.3.0.klib",
+          "url": "kog-ecs-js-0.3.0.klib",
+          "size": 45890,
+          "sha512": "316be29559c8f36d9d9c53d467ab19e679a8f940ec4f6986a761a40730342a1309e831eaa57984b44e6201b614dda2e189bea5f519b1a703ddd8ec1219823bb1",
+          "sha256": "7ea8435478bceff3ae359f190a4409e9b1f7a7ac736be9a983e263510c6c8012",
+          "sha1": "943941e4171ff4d602f99dcfe953491ba14702f8",
+          "md5": "6026f6134e080a37fb3c65aa4dcd606f"
+        }
+      ]
+    },
+    {
+      "name": "jsSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "non-jvm",
+        "org.gradle.usage": "kotlin-runtime",
+        "org.jetbrains.kotlin.js.compiler": "ir",
+        "org.jetbrains.kotlin.platform.type": "js"
+      },
+      "files": [
+        {
+          "name": "kog-ecs-js-0.3.0-sources.jar",
+          "url": "kog-ecs-js-0.3.0-sources.jar",
+          "size": 4236,
+          "sha512": "8466dad1c4b2d91527b601f867def813f3eaea43adc8927628872053ceb66917cf4a0efbc7ba491c81cc91c463c04addb30f7995ce4f91d2ef870c19e3582d4d",
+          "sha256": "907abf875e0b624c90c29d1a291617b3391fcde303a07964348c3fd4b79555fb",
+          "sha1": "a064a806e6ac2f85d9e33e5bc725b0fcb696d58e",
+          "md5": "6e129f25aeae1006cc79d0b40e6cf7ba"
+        }
+      ]
+    }
+  ]
+}

@@ -17,12 +17,14 @@
   ],
   "folders":
   [
-    { "name": "webgpumath", "path": "src" },
-    { "name": "ecs", "path": "ecs/src" },
+    { "name": "webgpumath", "path": "src/jsMain/kotlin" },
+    { "name": "kog-engine", "path": "kog-engine/src/jsMain/kotlin" },
+    { "name": "kog-ecs", "path": "ecs/src/commonMain/kotlin" },
+    { "name": "kimgui", "path": "kimgui/src/jsMain/kotlin" },    
     {
       "name": "build scripts",
       "path": ".",
-      "folder_exclude_patterns": ["src", "ecs", "docs", "build", ".gradle", ".kotlin", "kotlin-js-store", "gradle"],
+      "folder_exclude_patterns": ["src", "kog-engine", "kimgui", "ecs", "docs", "build", ".gradle", ".kotlin", "kotlin-js-store", "gradle"],
       "file_include_patterns": ["*.kts", "*.properties", "*.md"]
     }
   ],

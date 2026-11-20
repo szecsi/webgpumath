@@ -9,7 +9,7 @@ import kotlin.js.json
  *     @group(2) @binding(0) var<storage, read> gameObjects : array<GameObject>;
  *
  * The elements are StructuredElement objects, or any UniformProvider with a block for the
- * array's name (as a material has for its template's `materials` array). Once added,
+ * array's name (as a material has for its program's `materials` array). Once added,
  * an element's data is in the array's memory: its properties declared with `by Mat4()`
  * etc. are views into the array. Nothing is copied before drawing.
  *
@@ -127,31 +127,3 @@ open class StructuredBuffer(val name : String, binding : BindingInfo, capacity :
   }
 }
 
-/**
- * One element of a WGSL storage array of structs declared in the Prelude. It is put
- * into `buffer` when it is made, and its properties declared with `by Mat4()`,
- * `by Vec3()` etc. are views into the buffer's memory. It stays there until
- * `removeFromBuffer`: a component calls it when it is disposed of.
- *
- *     class ModelMatrix(override val entity : Int, gameObjects : StructuredBuffer) : StructuredElement(gameObjects), Component {
- *       val modelMatrix by Mat4()
- *       override fun dispose() = removeFromBuffer()
- *     }
- */
-open class StructuredElement(val buffer : StructuredBuffer) : UniformProvider(buffer.name) {
-  init {
-    addBlock(buffer.name, buffer.layout)
-    buffer.add(this)
-  }
-
-  override val hasFixedLayout : Boolean get() = true
-
-  /** The index of the element in the array; it changes when another element is removed. -1 once removed. */
-  val index : Int get() = blocks[buffer.name]!!.index
-
-  /** Takes it out of the buffer; the last element of the buffer moves into its place. */
-  fun removeFromBuffer() = buffer.remove(this)
-
-  override fun bufferFor(name : String, pass : Pass) : BufferResource =
-    throw Error("StructuredElement '${buffer.name}' is not bound by itself: pass the StructuredBuffer '${buffer.name}' when drawing.")
-}

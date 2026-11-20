@@ -7,7 +7,7 @@ import kotlin.js.json
  * How something is drawn, apart from the shaders: depth test, culling, blending,
  * stencil, multisampling. In WebGPU it is part of the pipeline.
  *
- * A render pipeline descriptor is put together from four sources: the PipelineTemplate
+ * A render pipeline descriptor is put together from four sources: the ShaderProgram
  * gives the shaders, the VertexLayout of the geometry the attribute formats and the topology,
  * the Target of the pass the formats and the sample count. The rest is here, in the parts
  * and under the names of GPURenderPipelineDescriptor:
@@ -140,8 +140,8 @@ class RenderState private constructor(
     }
 
     private fun validatePart(partName : String, part : Json) {
-      val allowed = allowedMembers[partName]!!
-      val owners = otherOwners[partName]!!
+      val allowed = allowedMembers[partName] ?: throw Error("RenderState validation: $partName: not in allowed members.")
+      val owners = otherOwners[partName] ?: throw Error("RenderState validation: $partName: not in other owners.")
       val keys = js("Object.keys")(part).unsafeCast<Array<String>>()
       for(key in keys) {
         val owner = owners[key]

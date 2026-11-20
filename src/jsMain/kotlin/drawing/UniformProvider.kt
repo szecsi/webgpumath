@@ -100,7 +100,7 @@ class UniformBlock(val layout : StructLayout) {
  * If the variable is declared in the Prelude, the properties declared with
  * `by Vec3()`, `by Mat4()` etc. are views into the provider's uniform buffer from
  * the start, and a property that the WGSL struct does not have is an error.
- * Otherwise the layout comes from the shaders that use it: `template.gatherUniforms(provider)`.
+ * Otherwise the layout comes from the shaders that use it: `program.gatherUniforms(provider)`.
  *
  * A provider only holds data. It is used by passing it along when something is drawn.
  */
@@ -175,7 +175,7 @@ open class UniformProvider(vararg val variableNames : String) {
 
   /** The buffer holding the data of WGSL variable `name`, uploaded if this is its first use in the frame. */
   open fun bufferFor(name : String, pass : Pass) : BufferResource {
-    val block = blocks[name] ?: throw Error("${this::class.simpleName} claims WGSL variable '$name', but has no data for it. Declare '$name' in the shader prelude, or gather its uniforms from the shaders that use it (PipelineTemplate.gatherUniforms).")
+    val block = blocks[name] ?: throw Error("${this::class.simpleName} claims WGSL variable '$name', but has no data for it. Declare '$name' in the shader prelude, or gather its uniforms from the shaders that use it (ShaderProgram.gatherUniforms).")
     return block.buffer(pass)
   }
 
