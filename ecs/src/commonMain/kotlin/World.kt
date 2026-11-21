@@ -90,7 +90,7 @@ class World {
     frozenRange = nextEntity
   }
 
-  inner class Populator internal constructor(val entity : Int) {
+  inner class Setter internal constructor(val entity : Int) {
     inline operator fun <reified T : Component> plusAssign(c : T){
       val s = storage<T>()
       set(s, c)
@@ -109,22 +109,22 @@ class World {
   }
 
   /** 
-   * Creates an entity, and lets `populator` add its components. Returns its handle. 
+   * Creates an entity, and lets `setter` add its components. Returns its handle. 
    * Not to be called from inside a query of the same component class: use `defer` there.
    */
-  fun create(populator : (Populator) -> Unit) : Int {
+  fun create(setter : (Setter) -> Unit) : Int {
     val entity = nextEntity++
     // the newest handle is the largest: the list stays sorted
     entities += entity
-    return endow(entity, populator)
+    return set(entity, setter)
   }
 
   /** 
-   * Lets `populator` add components to an exisiting entity. Returns its handle. 
+   * Lets `setter` add components to an existing entity. Returns its handle. 
    * Not to be called from inside a query of the same component class: use `defer` there.
    */
-  fun endow(entity : Int, populator : (Populator) -> Unit) : Int {
-    populator.invoke(Populator(entity))
+  fun set(entity : Int, setter : (Setter) -> Unit) : Int {
+    setter.invoke(Setter(entity))
     return entity
   }
 
