@@ -125,30 +125,30 @@ abstract class UniformSampler(var debugName : String) : Uniform {
 }
 
 class Sampler2D(debugName : String = "") : UniformSampler(debugName) {
-  operator fun provideDelegate(provider: UniformProvider, property: KProperty<*>) : Sampler2D {
+  operator fun provideDelegate(owner: UniformOwner, property: KProperty<*>) : Sampler2D {
     debugName = property.name
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): Sampler2D = this
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: Sampler2D) { set(value) }
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): Sampler2D = this
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: Sampler2D) { set(value) }
 }
 
 class SamplerCube(debugName : String = "") : UniformSampler(debugName) {
-  operator fun provideDelegate(provider: UniformProvider, property: KProperty<*>) : SamplerCube {
+  operator fun provideDelegate(owner: UniformOwner, property: KProperty<*>) : SamplerCube {
     debugName = property.name
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): SamplerCube = this
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: SamplerCube) { set(value) }
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): SamplerCube = this
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: SamplerCube) { set(value) }
 }
 
 class Sampler3D(debugName : String = "") : UniformSampler(debugName) {
-  operator fun provideDelegate(provider: UniformProvider, property: KProperty<*>) : Sampler3D {
+  operator fun provideDelegate(owner: UniformOwner, property: KProperty<*>) : Sampler3D {
     debugName = property.name
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): Sampler3D = this
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: Sampler3D) { set(value) }
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): Sampler3D = this
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: Sampler3D) { set(value) }
 }
 
 /**

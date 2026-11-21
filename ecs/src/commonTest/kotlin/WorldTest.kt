@@ -2,17 +2,17 @@ package vision.gears.ecs
 
 import kotlin.test.*
 
-class Tag(override val entity : Int) : Component
-class Value(override val entity : Int, val v : Int) : Component
+class Tag() : Component()
+class Value(val v : Int) : Component()
 
 class WorldTest {
   @Test
   fun handlesAreNeverReused() {
     val w = World()
-    val a = w.create()
+    val a = w.create{}
     w.destroy(a)
     w.flush()
-    val b = w.create()
+    val b = w.create{}
     assertNotEquals(a, b)
     assertFalse(w.isAlive(a))
     assertTrue(w.isAlive(b))
@@ -21,7 +21,7 @@ class WorldTest {
   @Test
   fun destroyTakesEffectAtFlush() {
     val w = World()
-    val a = w.create { ww, e -> ww += Tag(e) }
+    val a = w.create { ww -> ww += Tag() }
     w.destroy(a)
     assertTrue(w.isAlive(a))
     w.flush()
@@ -33,11 +33,13 @@ class WorldTest {
   @Test
   fun storagesStaySortedAndDense() {
     val w = World()
-    val es = List(10) { w.create { ww, e -> ww += Value(e, e * 10) } }
+    val es = List(10) { w.create { ww -> ww += Value(10) } }
     w.destroy(es[3]); w.destroy(es[7]); w.flush()
     // an older entity gets a component later: inserted in the middle
-    w.set(Value(es[1], 99))
-    w.set(Tag(es[5])); w.set(Tag(es[2]))
+    //TODO: endow and strip
+    w.endow(es[1]) { ww -> ww += Value(99) }
+    w.endow(es[5]) { ww -> ww += Tag() }
+    w.endow(es[2]) { ww -> ww += Tag() }
     val handles = w.storage<Value>().map { it.entity }
     assertEquals(handles.sorted(), handles)
     assertEquals(8, handles.size)
@@ -48,7 +50,7 @@ class WorldTest {
   @Test
   fun refFindsMovedComponentAndRemembersRow() {
     val w = World()
-    val es = List(5) { w.create { ww, e -> ww += Value(e, e) } }
+    val es = List(5) { w.create { ww -> ww += Value(it) } }
     val ref = Ref(es[4])
     assertEquals(4, w.get<Value>(ref)!!.v)
     assertEquals(4, ref.hint)
@@ -65,9 +67,9 @@ class WorldTest {
   @Test
   fun frozenEntitiesCannotBeDestroyed() {
     val w = World()
-    val a = w.create()
+    val a = w.create{}
     w.freezeEntities()
-    val b = w.create()
+    val b = w.create{}
     assertFailsWith<IllegalArgumentException> { w.destroy(a) }
     w.destroy(b)
     w.flush()

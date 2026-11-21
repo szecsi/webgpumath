@@ -171,16 +171,16 @@ class IVec2(backingStorage: Int32Array?, offset: Int = 0) : UniformInt {
   }
 
   operator fun provideDelegate(
-      provider: UniformProvider,
+      owner: UniformOwner,
       property: KProperty<*>) : IVec2 {
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
 
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): IVec2 {
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): IVec2 {
     return this
   }
 
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: IVec2) {
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: IVec2) {
     set(value)
   }
   

@@ -11,8 +11,12 @@ package vision.gears.webgpumath
  * Otherwise the layout comes from the shaders that use it: `program.gatherUniforms(provider)`.
  *
  * A provider only holds data. It is used by passing it along when something is drawn.
+ * A class that cannot derive from it can own one: see UniformOwner.
  */
-open class UniformProvider(vararg val variableNames : String) {
+open class UniformProvider(vararg val variableNames : String) : UniformOwner {
+  /** A provider is the owner of its own `by` properties. */
+  override val provider : UniformProvider get() = this
+
   internal val uniforms = HashMap<String, Uniform>()
   internal val blocks = HashMap<String, UniformBlock>()
 

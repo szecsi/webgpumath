@@ -8,7 +8,8 @@ import kotlin.js.json
  *
  *     @group(2) @binding(0) var<storage, read> gameObjects : array<GameObject>;
  *
- * The elements are StructuredElement objects, or any UniformProvider with a block for the
+ * The elements are StructuredElement objects (derived from, or owned by a UniformOwner),
+ * or any UniformProvider with a block for the
  * array's name (as a material has for its program's `materials` array). Once added,
  * an element's data is in the array's memory: its properties declared with `by Mat4()`
  * etc. are views into the array. Nothing is copied before drawing.

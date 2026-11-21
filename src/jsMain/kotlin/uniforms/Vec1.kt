@@ -144,16 +144,16 @@ class Vec1(backingStorage: Float32Array?, offset: Int = 0) : UniformFloat {
   }
 
   operator fun provideDelegate(
-      provider: UniformProvider,
+      owner: UniformOwner,
       property: KProperty<*>) : Vec1 {
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
 
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): Vec1 {
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): Vec1 {
     return this
   }
 
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: Vec1) {
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: Vec1) {
     set(value)
   }
 

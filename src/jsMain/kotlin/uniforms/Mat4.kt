@@ -409,16 +409,16 @@ class Mat4 (backingStorage: Float32Array?, offset: Int = 0) : UniformFloat {
   }
 
   operator fun provideDelegate(
-      provider: UniformProvider,
+      owner: UniformOwner,
       property: KProperty<*>) : Mat4{
-    return provider.bindUniform(property.name, this)
+    return owner.provider.bindUniform(property.name, this)
   }
 
-  operator fun getValue(provider: UniformProvider, property: KProperty<*>): Mat4 {
+  operator fun getValue(owner: UniformOwner, property: KProperty<*>): Mat4 {
     return this
   }
 
-  operator fun setValue(provider: UniformProvider, property: KProperty<*>, value: Mat4) {
+  operator fun setValue(owner: UniformOwner, property: KProperty<*>, value: Mat4) {
     set(value)
   }  
 

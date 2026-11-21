@@ -6,14 +6,15 @@ import kotlin.reflect.KClass
  * Data that belongs to an entity. An entity is just a handle: what it is and what
  * it does follows from the components it has.
  */
-interface Component {
-  val entity : Int
+open class Component {
+  var entity : Int = -1
+    internal set
 
   /**
    * Called when the component is removed from the world, or replaced by another.
    * Override it to give back what the component holds.
    */
-  fun dispose() {}
+  open fun dispose() {}
 }
 
 /**
@@ -46,24 +47,6 @@ class World {
   inline fun <reified T : Component> storage() : MutableList<T> =
     storages.getOrPut(T::class) { mutableListOf<T>() } as MutableList<T>
 
-  /**
-   * Adds the component to its entity, replacing the one of the same class if there is one.
-   * Not to be called from inside a query of the same component class: use `defer` there.
-   */
-  inline fun <reified T : Component> set(c : T) {
-    val s = storage<T>()
-    val i = s.binarySearchBy(c.entity) { it.entity }
-    if(i >= 0) {
-      val old = s[i]
-      s[i] = c
-      if(old !== c) old.dispose()
-    } else {
-      s.add(-i - 1, c)
-    }
-  }
-
-  /** `world += component` is `world.set(component)`. */
-  inline operator fun <reified T : Component> plusAssign(c : T) = set(c)
 
   inline fun <reified T : Component> get(entity : Int) : T? {
     val s = storage<T>()
@@ -107,12 +90,41 @@ class World {
     frozenRange = nextEntity
   }
 
-  /** Creates an entity, and lets `populator` add its components. Returns its handle. */
-  fun create(populator : ((World, Int) -> Unit)? = null) : Int {
+  inner class Populator internal constructor(val entity : Int) {
+    inline operator fun <reified T : Component> plusAssign(c : T){
+      val s = storage<T>()
+      set(s, c)
+    }
+    fun <T : Component> set(s : MutableList<T>, c : T){
+      c.entity = entity
+      val i = s.binarySearchBy(c.entity) { it.entity }
+      if(i >= 0) {
+        val old = s[i]
+        s[i] = c
+        if(old !== c) old.dispose()
+      } else {
+        s.add(-i - 1, c)
+      }
+    }
+  }
+
+  /** 
+   * Creates an entity, and lets `populator` add its components. Returns its handle. 
+   * Not to be called from inside a query of the same component class: use `defer` there.
+   */
+  fun create(populator : (Populator) -> Unit) : Int {
     val entity = nextEntity++
     // the newest handle is the largest: the list stays sorted
     entities += entity
-    populator?.invoke(this, entity)
+    return endow(entity, populator)
+  }
+
+  /** 
+   * Lets `populator` add components to an exisiting entity. Returns its handle. 
+   * Not to be called from inside a query of the same component class: use `defer` there.
+   */
+  fun endow(entity : Int, populator : (Populator) -> Unit) : Int {
+    populator.invoke(Populator(entity))
     return entity
   }
 

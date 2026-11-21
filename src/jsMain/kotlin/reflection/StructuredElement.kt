@@ -22,7 +22,7 @@ open class StructuredElement(val buffer : StructuredBuffer) : UniformProvider(bu
   override val hasFixedLayout : Boolean get() = true
 
   /** The index of the element in the array; it changes when another element is removed. -1 once removed. */
-  val index : Int get() = blocks[buffer.name]!!.index
+  val index : Int get() = blocks[buffer.name]?.index ?: -1
 
   /** Takes it out of the buffer; the last element of the buffer moves into its place. */
   fun removeFromBuffer() = buffer.remove(this)
