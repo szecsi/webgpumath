@@ -4,9 +4,6 @@ import org.khronos.webgl.ArrayBufferView
 import org.khronos.webgl.Uint8Array
 import kotlin.js.json
 
-/** One vertex attribute in its own buffer. `format` is a GPUVertexFormat such as "float32x3". */
-class VertexAttribute(val buffer : GPUBuffer, val format : String)
-
 /**
  * Vertex and index buffers. Attributes are matched by name to the inputs of the
  * vertex shader, e.g. `@location(0) vertexPosition : vec4f`. A geometry may have
@@ -42,7 +39,7 @@ open class Geometry(
   fun draw(pass : Pass, program : ShaderProgram, firstInstance : Int = 0, instanceCount : Int = 1) {
     val encoder = pass.encoder
     program.vertexInputs.forEachIndexed { slot, input ->
-      encoder.setVertexBuffer(slot, vertexAttributes[input.name]!!.buffer)
+      encoder.setVertexBuffer(slot, vertexAttributes[input.name]?.buffer ?: throw Error("No such attribute."))
     }
     val indices = indexBuffer
     if(indices != null) {

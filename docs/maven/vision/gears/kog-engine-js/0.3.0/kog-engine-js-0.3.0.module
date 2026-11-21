@@ -51,11 +51,11 @@
         {
           "name": "kog-engine-js-0.3.0.klib",
           "url": "kog-engine-js-0.3.0.klib",
-          "size": 57822,
-          "sha512": "041aa24e05a477ca721bd7c108b241afb683526fb3196387e31fd66c39ee6181aa98d48813274df931627afc5add026c0f7eb16f504f5e5b2accf4f6d4ad7d21",
-          "sha256": "852a4ad9a40aa69cb9bc6741b7adeea771ff58ccfb831868412a964a2608cecd",
-          "sha1": "36e486f17eedc04be096a46913bbe058ae3b72da",
-          "md5": "359e68176dac008942ef6f7a599bab5a"
+          "size": 57839,
+          "sha512": "9663f72f5695096ed697acf09aa09243510c3e670534b628d2a2fc2acbc175d72e612191bfad0ec9227c924455b5f442e2a221517c735a1b61b242895f6e3d03",
+          "sha256": "a78827fc2d193aed498298c1db5aee58210202fb0d06ef5269dfebc596bc5ae4",
+          "sha1": "cbc93eddfdc7d2ffa694a17186d51ad03116b8c2",
+          "md5": "dee22837ce83d37e7ba56cfd56e68fa5"
         }
       ]
     },
@@ -95,11 +95,11 @@
         {
           "name": "kog-engine-js-0.3.0.klib",
           "url": "kog-engine-js-0.3.0.klib",
-          "size": 57822,
-          "sha512": "041aa24e05a477ca721bd7c108b241afb683526fb3196387e31fd66c39ee6181aa98d48813274df931627afc5add026c0f7eb16f504f5e5b2accf4f6d4ad7d21",
-          "sha256": "852a4ad9a40aa69cb9bc6741b7adeea771ff58ccfb831868412a964a2608cecd",
-          "sha1": "36e486f17eedc04be096a46913bbe058ae3b72da",
-          "md5": "359e68176dac008942ef6f7a599bab5a"
+          "size": 57839,
+          "sha512": "9663f72f5695096ed697acf09aa09243510c3e670534b628d2a2fc2acbc175d72e612191bfad0ec9227c924455b5f442e2a221517c735a1b61b242895f6e3d03",
+          "sha256": "a78827fc2d193aed498298c1db5aee58210202fb0d06ef5269dfebc596bc5ae4",
+          "sha1": "cbc93eddfdc7d2ffa694a17186d51ad03116b8c2",
+          "md5": "dee22837ce83d37e7ba56cfd56e68fa5"
         }
       ]
     },
@@ -119,10 +119,10 @@
           "name": "kog-engine-js-0.3.0-sources.jar",
           "url": "kog-engine-js-0.3.0-sources.jar",
           "size": 15789,
-          "sha512": "19f477b627ec197775ddf48ed26fac70799e313ce4c84af67b744c4d0c18c2393a69112fe43d3650f2fd3fb9dc714c28f76a3658d65fb133f9c2104051e79afd",
-          "sha256": "d22e579c6d0e8e4d17010e807d14ef225652efe54ae6e5e967b49083a9e33286",
-          "sha1": "5e07b48a61a46465788afefee4bc80f37aa46e28",
-          "md5": "6cb9d37270cee9c4706cfd37ff4f3fe6"
+          "sha512": "8cf59be35831a9cd005efc7e4074314c930ec21673de3ffb72960cb86859f58f39cae2b4acecd1adf29772d7aa140a8204a53fc9ac4ce5d1d99c092d557d7c6f",
+          "sha256": "c56769765dfb640f03108c9c658cc2f530693164f7bcf4dc8ffce6542d789cfd",
+          "sha1": "e142a013606a7951d832a8fc46384118a66f1bc1",
+          "md5": "2244f97a2986523c7c5cdf4747d20e9c"
         }
       ]
     }

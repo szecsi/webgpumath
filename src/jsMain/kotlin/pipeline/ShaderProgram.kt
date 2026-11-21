@@ -44,8 +44,14 @@ class ShaderProgram(
   val fragmentEntryPoint = fragment.fragmentEntryPoint ?: throw Error("Shader ${fragment.debugName} has no @fragment function.")
   val vertexInputs : List<VertexInput> = vertex.vertexInputs
 
-  /** The used resource variables by name. */
+  /** The used resource variables by name: these are bound when drawing. */
   val bindings = HashMap<String, BindingInfo>()
+  /**
+   * All resource variables the two shaders declare, used or not, by name. Uniforms are
+   * gathered from these: so a shader that does not use a variable for the moment (e.g.
+   * when showing a partial result for testing) does not break the code that sets it.
+   */
+  val declarations = HashMap<String, BindingInfo>()
   /** The used resource variables of each bind group, in binding order. */
   val groups : Array<List<BindingInfo>>
   private val groupSignatures : Array<String>
@@ -65,6 +71,13 @@ class ShaderProgram(
           throw Error("WGSL variable '$name' is declared differently in ${vertex.debugName} and ${fragment.debugName}.")
         }
         bindings[name] = binding
+      }
+    }
+    // the used ones first: if the two shaders declare an unused variable differently, the used declaration counts
+    declarations.putAll(bindings)
+    for(shader in arrayOf(vertex, fragment)) {
+      for((name, binding) in shader.bindings) {
+        if(name !in declarations) declarations[name] = binding
       }
     }
     for(binding in bindings.values) {
@@ -115,7 +128,8 @@ class ShaderProgram(
   }
 
   /**
-   * Creates, in `target`, the uniforms of the variables of these shaders that `target` claims.
+   * Creates, in `target`, the uniforms of the variables of these shaders that `target` claims:
+   * of all declared ones, also those the shaders do not use.
    * For an array of structs, `target` gets the memory of one element, to be added to
    * an StructuredBuffer of that name, which then holds it.
    *
@@ -125,12 +139,12 @@ class ShaderProgram(
    */
   fun gatherUniforms(target : UniformProvider, withTextures : Boolean = true) {
     for(name in target.variableNames) {
-      val binding = bindings[name]
+      val binding = declarations[name]
       // a uniform struct, or a storage array of structs, of which the provider holds one element
       val isStruct = binding != null && binding.kind == BindingKind.UNIFORM && !binding.isArray
       val isElement = binding != null && binding.kind == BindingKind.STORAGE && binding.isArray && binding.struct != null
       if(isStruct || isElement) {
-        val layout = binding!!.struct!!
+        val layout = binding?.struct ?: throw Error("No binding struct for uniform.")
         val block = target.blocks[name]
         if(block == null) {
           target.addBlock(name, layout)
@@ -139,7 +153,7 @@ class ShaderProgram(
         }
       }
       if(!withTextures) continue
-      for(texture in bindings.values) {
+      for(texture in declarations.values) {
         if(texture.kind != BindingKind.TEXTURE || texture.name.substringBefore('_') != name) continue
         val memberName = texture.name.substringAfter('_')
         val reflected = makeTextureUniform(texture.typeName, memberName)
@@ -193,7 +207,7 @@ class ShaderProgram(
             resourceId = texture.resourceId
           }
           BindingKind.SAMPLER -> {
-            val texture = textureFor(textureOfSampler[binding.name]!!, pass, uniformProviders)
+            val texture = textureFor(textureOfSampler[binding.name] ?: throw Error("Texture for sampler not found."), pass, uniformProviders)
             resource = texture.sampler
             resourceId = texture.resourceId
           }

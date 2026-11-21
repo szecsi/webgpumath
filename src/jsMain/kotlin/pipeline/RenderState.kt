@@ -104,7 +104,7 @@ class RenderState private constructor(
 
     /** A GPUBlendState object, or null for no blending. */
     var blend : dynamic
-      get() = target["blend"] ?: null
+      get() = target["blend"]
       set(value) { target["blend"] = if(value == null) undefined else value }
 
     /**

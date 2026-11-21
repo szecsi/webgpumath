@@ -16,12 +16,12 @@ class PerProgramArrays(val name : String, val capacity : Int = 0) {
   private val arrays = HashMap<ShaderProgram, StructuredBuffer>()
 
   /** Whether the shaders of `program` have an array called `name`. */
-  fun isIn(program : ShaderProgram) : Boolean = program.bindings[name] != null
+  fun isIn(program : ShaderProgram) : Boolean = program.declarations[name] != null
 
   /** The array of `program`: made on first use, from the program's declaration. */
   fun arrayFor(program : ShaderProgram) : StructuredBuffer =
     arrays.getOrPut(program) {
-      val binding = program.bindings[name]
+      val binding = program.declarations[name]
         ?: throw Error("PerProgramArrays '$name': the shaders ${program.debugName} have no '$name' array.")
       StructuredBuffer(name, binding, capacity)
     }
